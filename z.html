@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Bunga</title>
+    <script src="calculator.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body id="body" class="bg-gray-100 text-gray-800">
+
+
+    <!-- Loader -->
+    <div id="loader" class="load">
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <!-- Gooey Effect -->
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+            <defs>
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+                    <feColorMatrix
+                        in="blur"
+                        mode="matrix"
+                        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+                        result="goo"
+                    />
+                    <feBlend in="SourceGraphic" in2="goo" />
+                </filter>
+            </defs>
+        </svg>
+    </div>
+
+    <!-- Catatan -->
+    <div id="note" class="bg-yellow-200 p-4 rounded-lg shadow-lg my-4 mx-auto max-w-lg relative">
+        <h1 class="text-xl font-bold">Pemberitahuan</h1>
+        <p>Pastikan Anda memasukkan semua data dengan benar sebelum melakukan kalkulasi. Jangka waktu dihitung berdasarkan periode yang dipilih, seperti contoh: 1 dengan periode triwulan, mewakili setiap satuan adalah triwulan.</p>
+        <button id="closeNote" class="absolute top-2 right-4 text-xl font-bold">&times;</button>
+    </div>
+
+    <!-- Pilihan Mode (disembunyikan sampai note ditutup) -->
+    <div id="modeSelector" class="bg-white p-4 rounded-lg shadow-md my-4 mx-auto max-w-lg hidden">
+        <h2 class="text-xl font-bold mb-4">Pilih Mode Tampilan</h2>
+        <button id="darkModeBtn" class="w-full bg-gray-800 text-white py-2 rounded mb-2">Mode Gelap</button>
+        <button id="lightModeBtn" class="w-full bg-gray-200 text-gray-800 py-2 rounded">Mode Default</button>
+    </div>
+
+    <!-- Kalkulator -->
+    <div id="calculator" class="bg-white p-6 rounded-lg shadow-md my-4 mx-auto max-w-lg">
+        <h2 class="text-2xl font-bold mb-4">Kalkulator Bunga</h2>
+
+        <div class="mb-4">
+            <label for="type" class="block mb-2">Tentukan Modal:</label>
+            <select id="type" class="w-full p-2 border rounded">
+                <option value="initial">Modal Awal</option>
+                <option value="final">Modal Akhir</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="interestType" class="block mb-2">Jenis Bunga:</label>
+            <select id="interestType" class="w-full p-2 border rounded">
+                <option value="simple">Bunga Tunggal</option>
+                <option value="compound">Bunga Majemuk</option>
+                <option value="annuity">Anuitas</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="periodType" class="block mb-2">Periode:</label>
+            <select id="periodType" class="w-full p-2 border rounded">
+                <option value="monthly">Perbulan</option>
+                <option value="quarterly">Triwulan</option>
+                <option value="semester">Semester</option>
+                <option value="yearly">Pertahun</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="amount" class="block mb-2">Jumlah Modal:</label>
+            <input type="number" id="amount" class="w-full p-2 border rounded" placeholder="Masukkan modal...">
+        </div>
+
+        <div class="mb-4">
+            <label for="rate" class="block mb-2">Tingkat Bunga (%):</label>
+            <input type="number" id="rate" class="w-full p-2 border rounded" placeholder="Masukkan suku bunga...">
+        </div>
+
+        <div class="mb-4">
+            <label for="time" class="block mb-2">Jangka Waktu:</label>
+            <input type="number" id="time" class="w-full p-2 border rounded" placeholder="Masukkan waktu (dalam tahun)...">
+        </div>
+
+        <button id="calculateBtn" class="w-full bg-blue-500 text-white py-2 rounded">Hitung</button>
+
+        <div class="mt-4">
+            <h3 class="text-xl font-bold">Hasil:</h3>
+            <p id="result" class="text-gray-700"></p>
+        </div>
+    </div>
+
+    <script>
+ document.addEventListener('DOMContentLoaded', function () {
+            const loader = document.getElementById('loader');
+            let fadeOut = false;
+
+            // Simulasi proses loading (3 detik)
+            setTimeout(() => {
+                fadeOut = true;
+                loader.classList.add('fade-out'); // Tambah class fade-out
+
+                // Setelah fade-out selesai, sembunyikan loader
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 1000); // Durasi fade-out 1 detik
+            }, 3000); // Menunggu 3 detik sebelum fade-out
+        });
+
+        // Menghilangkan note ketika tombol X diklik dan menampilkan opsi mode tampilan
+        document.getElementById('closeNote').addEventListener('click', function() {
+            document.getElementById('note').style.display = 'none';
+            document.getElementById('modeSelector').classList.remove('hidden');
+        });
+
+        // Fungsi untuk mengaktifkan dark mode
+        document.getElementById('darkModeBtn').addEventListener('click', function() {
+            document.getElementById('body').classList.add('bg-gray-800', 'text-white');
+            document.getElementById('calculator').classList.replace('bg-white', 'bg-gray-700');
+            document.getElementById('modeSelector').classList.replace('bg-white', 'bg-gray-700');
+        });
+
+        // Fungsi untuk kembali ke default mode
+        document.getElementById('lightModeBtn').addEventListener('click', function() {
+            document.getElementById('body').classList.remove('bg-gray-800', 'text-white');
+            document.getElementById('calculator').classList.replace('bg-gray-700', 'bg-white');
+            document.getElementById('modeSelector').classList.replace('bg-gray-700', 'bg-white');
+        });
+    </script>
+</body>
+</html>
